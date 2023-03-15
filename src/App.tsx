@@ -16,12 +16,17 @@ function App() {
     wind: {
       speed: number;
     };
+    coord: {
+      lat: number;
+      lon: number;
+    };
   }
 
   const [data, setData] = useState<Partial<WeatherData>>(() => {
     const savedData = localStorage.getItem('weatherData');
     return savedData ? JSON.parse(savedData) : {};
   });
+  const [data2, setData2] = useState<Partial<WeatherData>>({});
   const saveDataToLocalStorage = (data: Partial<WeatherData>) => {
     localStorage.setItem('weatherData', JSON.stringify(data));
   };
@@ -37,6 +42,7 @@ function App() {
       setLocation('');
     }
   };
+  console.log(data2);
 
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   useEffect(() => {
@@ -47,7 +53,7 @@ function App() {
           break;
         case 'Drizzle':
         case 'Rain':
-          setBackgroundImage('./src/assets/images/rainny.jpeg');
+          setBackgroundImage('./src/assets/images/rainy.jpeg');
           break;
         case 'Snow':
           setBackgroundImage('./src/assets/images/snow.jpeg');
@@ -64,6 +70,15 @@ function App() {
       }
     }
   }, [data.weather]);
+
+  useEffect(() => {
+    const url2 = data.coord
+      ? `https://api.open-meteo.com/v1/forecast?latitude=${data.coord.lat}&longitude=${data.coord.lon}&hourly=temperature_2m,precipitation_probability&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,precipitation_probability_max&current_weather=true&timezone=America%2FSao_Paulo`
+      : '';
+    axios.get(url2).then((response2) => {
+      setData2(response2.data);
+    });
+  }, [data]);
 
   return (
     <div
